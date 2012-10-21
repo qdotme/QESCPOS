@@ -23,15 +23,24 @@
 class QESCPOSSHARED_EXPORT QESCPOS : public QextSerialPort
 {
     Q_OBJECT
-    Q_PROPERTY(int  underline       READ underline       WRITE setUnderline      )
-    Q_PROPERTY(bool emphasized      READ emphasized      WRITE setEmphasized     )
-    Q_PROPERTY(bool doubleStrike    READ doubleStrike    WRITE setDoubleStrike   )
-    Q_PROPERTY(bool upsideDown      READ upsideDown      WRITE setUpsideDown     )
-    Q_PROPERTY(bool reverse         READ reverse         WRITE setReverse        )
-    Q_PROPERTY(bool smoothing       READ smoothing       WRITE setSmoothing      )
+    Q_PROPERTY(int      underline                 READ underline                 WRITE setUnderline                 )
+    Q_PROPERTY(bool     emphasized                READ emphasized                WRITE setEmphasized                )
+    Q_PROPERTY(bool     doubleStrike              READ doubleStrike              WRITE setDoubleStrike              )
+    Q_PROPERTY(bool     upsideDown                READ upsideDown                WRITE setUpsideDown                )
+    Q_PROPERTY(bool     reverse                   READ reverse                   WRITE setReverse                   )
+    Q_PROPERTY(bool     smoothing                 READ smoothing                 WRITE setSmoothing                 )
 
-    Q_PROPERTY(int  characterWidth  READ characterWidth  WRITE setCharacterWidth )
-    Q_PROPERTY(int  characterHeight READ characterHeight WRITE setCharacterHeight)
+    Q_PROPERTY(int      characterWidth            READ characterWidth            WRITE setCharacterWidth            )
+    Q_PROPERTY(int      characterHeight           READ characterHeight           WRITE setCharacterHeight           )
+
+    Q_PROPERTY(ICS      internationalCharacterSet READ internationalCharacterSet WRITE setInternationalCharacterSet )
+    Q_PROPERTY(CCT      characterCodeTable        READ characterCodeTable        WRITE setCharacterCodeTable        )
+    Q_PROPERTY(Color    characterColor            READ characterColor            WRITE setCharacterColor            )
+    Q_PROPERTY(Color    backgroundColor           READ backgroundColor           WRITE setBackgroundColor           )
+    Q_PROPERTY(Rotation clockwiseRotation         READ clockwiseRotation         WRITE setClockwiseRotation         )
+    Q_PROPERTY(Font     font                      READ font                      WRITE setFont                      )
+
+    Q_PROPERTY(Just     justification             READ justification             WRITE setJustification             )
 
 
 public:
@@ -92,6 +101,18 @@ public:
         JUST_RIGHT = 2,
     };
     
+    enum Rotation {
+        ROTATE_NONE    = 0,
+        ROTATE_SPACE1  = 1,
+        ROTATE_SPACE15 = 2
+    };
+
+    enum Font {
+        FONT_A   = 0,
+        FONT_B   = 1,
+        FONT_C   = 2,
+        FONT_EXT = 97
+    };
 
     void setType(Type t);
 
@@ -99,28 +120,31 @@ public:
     DECLARE_STATIC(cutPaper,        bool full=false, int pos=-1)
 
     // ** STATE CHANGERS ** //
-    DECLARE_STATIC_SINGLESTATE(underline,    Underline,    int,  1)
-    DECLARE_STATIC_SINGLESTATE(emphasized,   Emphasized,   bool, true)
-    DECLARE_STATIC_SINGLESTATE(doubleStrike, DoubleStrike, bool, true)
-    DECLARE_STATIC_SINGLESTATE(upsideDown,   UpsideDown,   bool, true)
-    DECLARE_STATIC_SINGLESTATE(reverse,      Reverse,      bool, true)
-    DECLARE_STATIC_SINGLESTATE(smoothing,    Smoothing,    bool, true)
+    DECLARE_STATIC_SINGLESTATE(underline,                 Underline,                 int,      1             )
+    DECLARE_STATIC_SINGLESTATE(emphasized,                Emphasized,                bool,     true          )
+    DECLARE_STATIC_SINGLESTATE(doubleStrike,              DoubleStrike,              bool,     true          )
+    DECLARE_STATIC_SINGLESTATE(upsideDown,                UpsideDown,                bool,     true          )
+    DECLARE_STATIC_SINGLESTATE(reverse,                   Reverse,                   bool,     true          )
+    DECLARE_STATIC_SINGLESTATE(smoothing,                 Smoothing,                 bool,     true          )
+
+    DECLARE_STATIC_SINGLESTATE(internationalCharacterSet, InternationalCharacterSet, ICS,      ICS_UK        )
+    DECLARE_STATIC_SINGLESTATE(characterCodeTable,        CharacterCodeTable,        CCT,      CCT_PC437     )
+    DECLARE_STATIC_SINGLESTATE(characterColor,            CharacterColor,            Color,    C_COLOR2      )
+    DECLARE_STATIC_SINGLESTATE(backgroundColor,           BackgroundColor,           Color,    C_COLOR2      )
+    DECLARE_STATIC_SINGLESTATE(clockwiseRotation,         ClockwiseRotation,         Rotation, ROTATE_SPACE1 )
+    DECLARE_STATIC_SINGLESTATE(font,                      Font,                      Font,     FONT_B        )
+
+    DECLARE_STATIC_SINGLESTATE(justification,             Justification,             Just,  JUST_CENTER      )
 
 
-    DECLARE_STATIC(setFont,         int  font=0)
-    DECLARE_STATIC(setInternationalCharacterSet, ICS ics=ICS_UK)
-    DECLARE_STATIC(setClockwiseRotation, int rotation=1)
-    DECLARE_STATIC(setCharacterCodeTable, CCT cct=CCT_PC437)
-    DECLARE_STATIC(setCharacterColor,  Color color = C_COLOR2)
-    DECLARE_STATIC(setBackgroundColor, Color color = C_COLOR2)
     DECLARE_STATIC(setShadingColor,    Color color = C_COLOR2, bool shadow = true)
 
     DECLARE_STATIC(setCharacterSize,   int width = 2, int height = 2)
+
     int characterWidth () const; void setCharacterWidth (int n);
     int characterHeight() const; void setCharacterHeight(int n);
     
     
-    DECLARE_STATIC(setJustification,   Just just = JUST_CENTER)
     DECLARE_STATIC(printRaster,        QBitmap b, int scaleX = 0, int scaleY = 1)
     
     void write(const QByteArray &data);

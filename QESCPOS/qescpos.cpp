@@ -83,6 +83,20 @@ DEFINE_SINGLE_PARAM(reverse,      Reverse,      bool,                        \
 DEFINE_SINGLE_PARAM(smoothing,    Smoothing,    bool,                        \
     return QByteArray(GS"b").append((unsigned char)smoothing); )
 
+DEFINE_SINGLE_PARAM(font,         Font,         QESCPOS::Font,               \
+    return QByteArray(ESC"M").append((unsigned char)font); )
+
+DEFINE_SINGLE_PARAM(internationalCharacterSet, InternationalCharacterSet, QESCPOS::ICS, \
+    return QByteArray(ESC"R").append((unsigned char)internationalCharacterSet); )
+
+// ESC r - print color - not featured on TM88-IV.
+
+DEFINE_SINGLE_PARAM(characterCodeTable, CharacterCodeTable, QESCPOS::CCT, \
+    return QByteArray(ESC"t").append((unsigned char)characterCodeTable); )
+
+DEFINE_SINGLE_PARAM(characterColor, CharacterColor, QESCPOS::Color,       \
+    return QByteArray(ESC"t").append((unsigned char)characterColor); )
+
 
 // *** CHARACTER SIZE ***//
 QByteArray QESCPOS::setCharacterSizeCommand(int width, int height) {

@@ -20,6 +20,7 @@ public:
     void setType(Type t);
 
     DECLARE_STATIC(cutPaper, bool full=false, int pos=-1)
+    void write(const QByteArray &data);
 };
 
 #endif // QESCPOS_H

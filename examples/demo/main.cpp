@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     printer.open(QIODevice::ReadWrite);
 
     printer.write("Foo\n\n\n\n");
-    printer.cutPaper();
+    printer.cutPaper(true);
 
     return a.exec();
 }

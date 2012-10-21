@@ -12,7 +12,13 @@
 class QESCPOSSHARED_EXPORT QESCPOS : public QextSerialPort
 {
     Q_OBJECT
-    Q_PROPERTY(int underline /*READ underline*/ WRITE setUnderline)
+    Q_PROPERTY(int  underline       READ underline       WRITE setUnderline      )
+    Q_PROPERTY(bool emphasized      READ emphasized      WRITE setEmphasized     )
+
+    Q_PROPERTY(int  characterWidth  READ characterWidth  WRITE setCharacterWidth )
+    Q_PROPERTY(int  characterHeight READ characterHeight WRITE setCharacterHeight)
+
+
 public:
     QESCPOS();
     QESCPOS(const QString &name);
@@ -74,9 +80,16 @@ public:
 
     void setType(Type t);
 
+    // ** ACTIVES ** //
     DECLARE_STATIC(cutPaper,        bool full=false, int pos=-1)
+
+    // ** STATE CHANGERS ** //
     DECLARE_STATIC(setUnderline,    int  thickness=1)
+    int underline() const;
+
     DECLARE_STATIC(setEmphasized,   bool emphasized=true)
+    bool emphasized() const;
+
     DECLARE_STATIC(setDoubleStrike, bool doubleStrike=true)
     DECLARE_STATIC(setFont,         int  font=0)
     DECLARE_STATIC(setInternationalCharacterSet, ICS ics=ICS_UK)
@@ -86,7 +99,11 @@ public:
     DECLARE_STATIC(setCharacterColor,  Color color = C_COLOR2)
     DECLARE_STATIC(setBackgroundColor, Color color = C_COLOR2)
     DECLARE_STATIC(setShadingColor,    Color color = C_COLOR2, bool shadow = true)
+
     DECLARE_STATIC(setCharacterSize,   int width = 2, int height = 2)
+    int characterWidth () const; void setCharacterWidth (int n);
+    int characterHeight() const; void setCharacterHeight(int n);
+
     DECLARE_STATIC(setReverse,         bool reverse   = true)
     DECLARE_STATIC(setSmoothing,       bool smoothing = true)
     
@@ -95,6 +112,24 @@ public:
     DECLARE_STATIC(printRaster,        QBitmap b, int scaleX = 0, int scaleY = 1)
     
     void write(const QByteArray &data);
+
+    void demoCharPage(int charactersPerLine = 32, int base = 10);
+public slots:
+    void on_this_characterSizeChanged();
+
+signals:
+    void characterSizeChanged();
+
+private:
+    void setInitial();
+
+    int m_underline;
+    bool m_emphasized;
+
+    int m_characterWidth;
+    int m_characterHeight;
+
+    bool m_characterSizeChanged;
 };
 
 #endif // QESCPOS_H

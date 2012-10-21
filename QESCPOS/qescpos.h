@@ -5,6 +5,8 @@
 
 #include "qextserialport.h"
 
+#include <QBitmap>
+
 #define DECLARE_STATIC(name, ...) static QByteArray name##Command(__VA_ARGS__); void name(__VA_ARGS__);
 
 class QESCPOSSHARED_EXPORT QESCPOS : public QextSerialPort

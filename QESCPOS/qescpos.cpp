@@ -1,7 +1,8 @@
 #include "qescpos.h"
 #include <QDebug>
 
-#define GS "\x1d"
+#define GS  "\x1d"
+#define ESC "\x1b"
 
 QESCPOS::QESCPOS() : QextSerialPort()
 {
@@ -24,5 +25,9 @@ QByteArray QESCPOS::cutPaperCommand(bool full, int pos) {
 
     //! @todo: support for GS V function C, D
 }
-
 void QESCPOS::cutPaper(bool full, int pos) { write(cutPaperCommand(full, pos)); }
+
+QByteArray QESCPOS::setUnderlineCommand(int thickness) {
+    return QByteArray(ESC"-").append((unsigned char)thickness);
+}
+void QESCPOS::setUnderline(int thickness) { write(setUnderlineCommand(thickness)); }

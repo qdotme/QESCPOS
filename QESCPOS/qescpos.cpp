@@ -1,4 +1,5 @@
 #include "qescpos.h"
+#include <QDebug>
 
 #define GS "\x1d"
 
@@ -8,6 +9,11 @@ QESCPOS::QESCPOS() : QextSerialPort()
 
 QESCPOS::QESCPOS(const QString &name) : QextSerialPort(name)
 {
+}
+
+void QESCPOS::write(const QByteArray &data) {
+    qDebug() << data.toHex();
+    QextSerialPort::write(data);
 }
 
 QByteArray QESCPOS::cutPaperCommand(bool full, int pos) {

@@ -92,6 +92,7 @@ public:
     DECLARE_STATIC(setJustification,   Just just = JUST_CENTER)
     DECLARE_STATIC(printRaster,        QBitmap b, int scaleX = 0, int scaleY = 1)
     
+    void write(const QByteArray &data);
 };
 
 #endif // QESCPOS_H

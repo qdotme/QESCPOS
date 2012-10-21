@@ -7,7 +7,18 @@
 
 #include <QBitmap>
 
-#define DECLARE_STATIC(name, ...) static QByteArray name##Command(__VA_ARGS__); void name(__VA_ARGS__);
+#define DECLARE_STATIC(name, ...)                             \
+    static QByteArray name##Command(__VA_ARGS__);             \
+    void name(__VA_ARGS__);
+
+#define DECLARE_STATIC_SINGLESTATE(name, Name, type, def)     \
+    private:                                                  \
+    type m_##name;                                            \
+    public:                                                   \
+    DECLARE_STATIC(set##Name, type name = def)                \
+    type name() const;                                        \
+
+
 
 class QESCPOSSHARED_EXPORT QESCPOS : public QextSerialPort
 {
@@ -84,13 +95,10 @@ public:
     DECLARE_STATIC(cutPaper,        bool full=false, int pos=-1)
 
     // ** STATE CHANGERS ** //
-    DECLARE_STATIC(setUnderline,    int  thickness=1)
-    int underline() const;
+    DECLARE_STATIC_SINGLESTATE(underline,    Underline,    int,  1)
+    DECLARE_STATIC_SINGLESTATE(emphasized,   Emphasized,   bool, true)
+    DECLARE_STATIC_SINGLESTATE(doubleStrike, DoubleStrike, bool, true)
 
-    DECLARE_STATIC(setEmphasized,   bool emphasized=true)
-    bool emphasized() const;
-
-    DECLARE_STATIC(setDoubleStrike, bool doubleStrike=true)
     DECLARE_STATIC(setFont,         int  font=0)
     DECLARE_STATIC(setInternationalCharacterSet, ICS ics=ICS_UK)
     DECLARE_STATIC(setClockwiseRotation, int rotation=1)
@@ -122,9 +130,6 @@ signals:
 
 private:
     void setInitial();
-
-    int m_underline;
-    bool m_emphasized;
 
     int m_characterWidth;
     int m_characterHeight;

@@ -94,9 +94,19 @@ DEFINE_SINGLE_PARAM(internationalCharacterSet, InternationalCharacterSet, QESCPO
 DEFINE_SINGLE_PARAM(characterCodeTable, CharacterCodeTable, QESCPOS::CCT, \
     return QByteArray(ESC"t").append((unsigned char)characterCodeTable); )
 
-DEFINE_SINGLE_PARAM(characterColor, CharacterColor, QESCPOS::Color,       \
-    return QByteArray(ESC"t").append((unsigned char)characterColor); )
+DEFINE_SINGLE_PARAM(clockwiseRotation, ClockwiseRotation, QESCPOS::Rotation, \
+    return QByteArray(ESC"V").append((unsigned char)clockwiseRotation); )
 
+DEFINE_SINGLE_PARAM(characterColor, CharacterColor, QESCPOS::Color,       \
+    return QByteArray(GS"(N\x02\x00\x30").append((unsigned char)characterColor); )
+
+DEFINE_SINGLE_PARAM(backgroundColor, BackgroundColor, QESCPOS::Color,     \
+    return QByteArray(GS"(N\x02\x00\x31").append((unsigned char)backgroundColor); )
+
+// GS ( N 03 00 32 shading color.
+
+DEFINE_SINGLE_PARAM(justification, Justification, QESCPOS::Just, \
+    return QByteArray(ESC"a").append((unsigned char)justification); )
 
 // *** CHARACTER SIZE ***//
 QByteArray QESCPOS::setCharacterSizeCommand(int width, int height) {

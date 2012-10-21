@@ -20,8 +20,17 @@ int main(int argc, char *argv[])
     printer.setSmoothing();
     printer.write("QESCPOS System\n");
     printer.setCharacterSize(1, 1);
-    printer.demoCharPage();
-    printer.demoCharPage(32, 16);
+
+    for (int i=1; i<=8; i++) {
+        printer.demoCharPage();
+        printer.demoCharPage(32, 16);
+        printer.setCharacterCodeTable((QESCPOS::CCT)i);
+    }
+    for (int i=16; i<=19; i++) {
+        printer.demoCharPage();
+        printer.demoCharPage(32, 16);
+        printer.setCharacterCodeTable((QESCPOS::CCT)i);
+    }
     printer.cutPaper(true, 0);
 
     return a.exec();

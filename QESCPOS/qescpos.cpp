@@ -52,23 +52,37 @@ QByteArray QESCPOS::cutPaperCommand(bool full, int pos) {
 }
 void QESCPOS::cutPaper(bool full, int pos) { write(cutPaperCommand(full, pos)); }
 
-#define DEFINE_SINGLE_PARAM(name, Name, type, varname, body)  \
-    QByteArray QESCPOS::set##Name##Command (type varname) {   \
+#define DEFINE_SINGLE_PARAM(name, Name, type, body)           \
+    QByteArray QESCPOS::set##Name##Command (type name) {      \
         body                                                  \
     }                                                         \
                                                               \
-    void QESCPOS::set##Name (type varname) {                  \
-        if (m_##name == varname) return;                      \
-        m_##name = varname;                                   \
-        write(set##Name##Command(varname));                   \
+    void QESCPOS::set##Name (type name) {                     \
+        if (m_##name == name) return;                         \
+        m_##name = name;                                      \
+        write(set##Name##Command(name));                      \
     }                                                         \
                                                               \
     type QESCPOS::name () const { return m_##name; }
 
-DEFINE_SINGLE_PARAM(underline,  Underline,  int,  thickness, \
-                    return QByteArray(ESC"-").append((unsigned char)thickness); )
-DEFINE_SINGLE_PARAM(emphasized, Emphasized, bool, emphasized, \
-                    return QByteArray(ESC"E").append((unsigned char)emphasized); )
+DEFINE_SINGLE_PARAM(underline,    Underline,    int,                         \
+    return QByteArray(ESC"-").append((unsigned char)underline); )
+
+DEFINE_SINGLE_PARAM(emphasized,   Emphasized,   bool,                        \
+    return QByteArray(ESC"E").append((unsigned char)emphasized); )
+
+DEFINE_SINGLE_PARAM(doubleStrike, DoubleStrike, bool,                        \
+    return QByteArray(ESC"G").append((unsigned char)doubleStrike); )
+
+DEFINE_SINGLE_PARAM(upsideDown,   UpsideDown,   bool,                        \
+    return QByteArray(ESC"{").append((unsigned char)upsideDown); )
+
+DEFINE_SINGLE_PARAM(reverse,      Reverse,      bool,                        \
+    return QByteArray(GS"B").append((unsigned char)reverse); )
+
+DEFINE_SINGLE_PARAM(smoothing,    Smoothing,    bool,                        \
+    return QByteArray(GS"b").append((unsigned char)smoothing); )
+
 
 // *** CHARACTER SIZE ***//
 QByteArray QESCPOS::setCharacterSizeCommand(int width, int height) {

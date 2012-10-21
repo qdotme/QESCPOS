@@ -15,7 +15,9 @@ int main(int argc, char *argv[])
     printer.write("QESCPOS 2012 (c) Blattaria, Ltd.\n");
     printer.setUnderline(0);
     printer.setCharacterSize();
-    printer.setEmphasized();
+    printer.setEmphasized(false);
+    printer.write("QESCPOS System\n");
+    printer.setSmoothing();
     printer.write("QESCPOS System\n");
     printer.setCharacterSize(1, 1);
     printer.demoCharPage();

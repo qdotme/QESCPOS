@@ -25,6 +25,10 @@ class QESCPOSSHARED_EXPORT QESCPOS : public QextSerialPort
     Q_OBJECT
     Q_PROPERTY(int  underline       READ underline       WRITE setUnderline      )
     Q_PROPERTY(bool emphasized      READ emphasized      WRITE setEmphasized     )
+    Q_PROPERTY(bool doubleStrike    READ doubleStrike    WRITE setDoubleStrike   )
+    Q_PROPERTY(bool upsideDown      READ upsideDown      WRITE setUpsideDown     )
+    Q_PROPERTY(bool reverse         READ reverse         WRITE setReverse        )
+    Q_PROPERTY(bool smoothing       READ smoothing       WRITE setSmoothing      )
 
     Q_PROPERTY(int  characterWidth  READ characterWidth  WRITE setCharacterWidth )
     Q_PROPERTY(int  characterHeight READ characterHeight WRITE setCharacterHeight)
@@ -98,12 +102,15 @@ public:
     DECLARE_STATIC_SINGLESTATE(underline,    Underline,    int,  1)
     DECLARE_STATIC_SINGLESTATE(emphasized,   Emphasized,   bool, true)
     DECLARE_STATIC_SINGLESTATE(doubleStrike, DoubleStrike, bool, true)
+    DECLARE_STATIC_SINGLESTATE(upsideDown,   UpsideDown,   bool, true)
+    DECLARE_STATIC_SINGLESTATE(reverse,      Reverse,      bool, true)
+    DECLARE_STATIC_SINGLESTATE(smoothing,    Smoothing,    bool, true)
+
 
     DECLARE_STATIC(setFont,         int  font=0)
     DECLARE_STATIC(setInternationalCharacterSet, ICS ics=ICS_UK)
     DECLARE_STATIC(setClockwiseRotation, int rotation=1)
     DECLARE_STATIC(setCharacterCodeTable, CCT cct=CCT_PC437)
-    DECLARE_STATIC(setUpsideDown,   bool upsideDown=true)
     DECLARE_STATIC(setCharacterColor,  Color color = C_COLOR2)
     DECLARE_STATIC(setBackgroundColor, Color color = C_COLOR2)
     DECLARE_STATIC(setShadingColor,    Color color = C_COLOR2, bool shadow = true)
@@ -111,9 +118,6 @@ public:
     DECLARE_STATIC(setCharacterSize,   int width = 2, int height = 2)
     int characterWidth () const; void setCharacterWidth (int n);
     int characterHeight() const; void setCharacterHeight(int n);
-
-    DECLARE_STATIC(setReverse,         bool reverse   = true)
-    DECLARE_STATIC(setSmoothing,       bool smoothing = true)
     
     
     DECLARE_STATIC(setJustification,   Just just = JUST_CENTER)

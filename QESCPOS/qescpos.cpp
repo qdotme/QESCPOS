@@ -52,33 +52,23 @@ QByteArray QESCPOS::cutPaperCommand(bool full, int pos) {
 }
 void QESCPOS::cutPaper(bool full, int pos) { write(cutPaperCommand(full, pos)); }
 
+#define DEFINE_SINGLE_PARAM(name, Name, type, varname, body)  \
+    QByteArray QESCPOS::set##Name##Command (type varname) {   \
+        body                                                  \
+    }                                                         \
+                                                              \
+    void QESCPOS::set##Name (type varname) {                  \
+        if (m_##name == varname) return;                      \
+        m_##name = varname;                                   \
+        write(set##Name##Command(varname));                   \
+    }                                                         \
+                                                              \
+    type QESCPOS::name () const { return m_##name; }
 
-
-// *** UNDERLINE *** //
-QByteArray QESCPOS::setUnderlineCommand(int thickness) {
-    return QByteArray(ESC"-").append((unsigned char)thickness);
-}
-
-void QESCPOS::setUnderline(int thickness) {
-    if (m_underline == thickness) return;
-    m_underline = thickness;
-    write(setUnderlineCommand(thickness));
-}
-
-int QESCPOS::underline() const { return m_underline; }
-
-// *** EMPHASIZED ***//
-QByteArray QESCPOS::setEmphasizedCommand(bool emphasized) {
-    return QByteArray(ESC"E").append((unsigned char)emphasized);
-}
-
-void QESCPOS::setEmphasized(bool emphasized) {
-    if (m_emphasized == emphasized) return;
-    m_emphasized = emphasized;
-    write(setEmphasizedCommand(emphasized));
-}
-
-bool QESCPOS::emphasized() const { return m_emphasized; }
+DEFINE_SINGLE_PARAM(underline,  Underline,  int,  thickness, \
+                    return QByteArray(ESC"-").append((unsigned char)thickness); )
+DEFINE_SINGLE_PARAM(emphasized, Emphasized, bool, emphasized, \
+                    return QByteArray(ESC"E").append((unsigned char)emphasized); )
 
 // *** CHARACTER SIZE ***//
 QByteArray QESCPOS::setCharacterSizeCommand(int width, int height) {

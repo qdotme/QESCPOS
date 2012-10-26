@@ -29,3 +29,8 @@ unix:!symbian {
 }
 
 unix:LIBS += -lqextserialport
+
+
+header_files.files = $$HEADERS
+unix:header_files.path = /usr/include/QESCPOS
+INSTALLS += header_files

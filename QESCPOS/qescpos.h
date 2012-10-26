@@ -145,11 +145,13 @@ public:
     int characterHeight() const; void setCharacterHeight(int n);
     
     
-    DECLARE_STATIC(printRaster,        QBitmap b, int scaleX = 0, int scaleY = 1)
+    DECLARE_STATIC(printRaster,        QImage i, int scaleX = 0, int scaleY = 1)
     
     void write(const QByteArray &data);
 
     void demoCharPage(int charactersPerLine = 32, int base = 10);
+
+    QMap<QString, QByteArray> getCommandMap();
 public slots:
     void on_this_characterSizeChanged();
 
@@ -163,6 +165,7 @@ private:
     int m_characterHeight;
 
     bool m_characterSizeChanged;
+
 };
 
 #endif // QESCPOS_H

@@ -1,6 +1,12 @@
 #include "qescpos.h"
 #include <QDebug>
 
+#include <arpa/inet.h>
+
+// Here be hungry dragons,
+#include <boost/preprocessor/list.hpp>
+#include <boost/preprocessor/seq.hpp>
+
 #define GS  "\x1d"
 #define ESC "\x1b"
 
@@ -20,7 +26,6 @@ void QESCPOS::setInitial() {
 
     connect(this, SIGNAL(characterSizeChanged()), this, SLOT(on_this_characterSizeChanged()), Qt::QueuedConnection);
 }
-
 
 
 void QESCPOS::write(const QByteArray &data) {
@@ -64,6 +69,10 @@ void QESCPOS::cutPaper(bool full, int pos) { write(cutPaperCommand(full, pos)); 
     }                                                         \
                                                               \
     type QESCPOS::name () const { return m_##name; }
+
+#define DEFINE_SINGLE_BOOL_PARAM_STRING(Name)      \
+    ret["setQESCPOS"#Name]   = set##Name##Command(true);  \
+    ret["resetQESCPOS"#Name] = set##Name##Command(false);
 
 DEFINE_SINGLE_PARAM(underline,    Underline,    int,                         \
     return QByteArray(ESC"-").append((unsigned char)underline); )
@@ -142,4 +151,73 @@ void QESCPOS::on_this_characterSizeChanged() {
         setCharacterSize(m_characterWidth, m_characterHeight);
         m_characterSizeChanged = false;
     }
+}
+
+QByteArray QESCPOS::printRasterCommand(QImage i, int scaleX, int scaleY) {
+    QImage i_mono = i.convertToFormat(QImage::Format_Mono);
+    QByteArray ret = QByteArray(GS"V\x00").append((char)0);
+    ret = ret.append((unsigned short)htons(i.width())).append((unsigned short)htons(i.height()));
+    ret = ret.append((const char*) i_mono.bits());
+
+    return ret;
+}
+
+void QESCPOS::printRaster(QImage i, int scaleX, int scaleY) {
+    write(printRasterCommand(i, scaleX, scaleY));
+}
+
+/*
+class Base {
+public:
+    QMap<QString, QString> getMap() {
+        return QMap<QString, QString>();
+    }
+};
+
+
+template<typename B, class X, class Y>
+class Child : public B {
+    QMap<QString, QString> getMap() {
+        QMap<QString, QString> ret = B::getMap();
+        ret[X::name] = Y::name;
+        return ret;
+    }
+};
+
+QMap<QString, QString> ret;
+
+ret["A"] = B;
+
+*/
+/*
+class A {
+public:
+    static const char * name;
+};
+const char * A::name = "Foo";
+
+class B {
+public:
+    static const char * name;
+};
+const char * B::name = "Foo";
+
+typedef Base Acc;
+
+typedef Child<Acc, A, B> Acc;
+
+*/
+
+QMap<QString, QByteArray> QESCPOS::getCommandMap() {
+    QMap<QString, QByteArray> ret;
+
+    for(int x = 1; x < 8; x++)
+        for(int y = 1; y < 8; y++)
+            ret[QString("setQESCPOSCharacterSize_%1x%2").arg(x).arg(y)] = setCharacterSizeCommand(x, y);
+
+    DEFINE_SINGLE_BOOL_PARAM_STRING(Emphasized);
+    DEFINE_SINGLE_BOOL_PARAM_STRING(Smoothing);
+
+
+    return ret;
 }

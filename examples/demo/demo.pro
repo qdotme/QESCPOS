@@ -27,3 +27,6 @@ else:unix: LIBS += -L$$OUT_PWD/../../QESCPOS/ -lQESCPOS
 
 INCLUDEPATH += $$PWD/../../QESCPOS
 DEPENDPATH += $$PWD/../../QESCPOS
+
+RESOURCES += \
+    resources.qrc

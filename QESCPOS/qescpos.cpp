@@ -4,8 +4,8 @@
 #include <arpa/inet.h>
 
 // Here be hungry dragons,
-#include <boost/preprocessor/list.hpp>
-#include <boost/preprocessor/seq.hpp>
+//#include <boost/preprocessor/list.hpp>
+//#include <boost/preprocessor/seq.hpp>
 
 #define GS  "\x1d"
 #define ESC "\x1b"

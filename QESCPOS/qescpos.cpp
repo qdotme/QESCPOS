@@ -215,6 +215,9 @@ QMap<QString, QByteArray> QESCPOS::getCommandMap() {
         for(int y = 1; y < 8; y++)
             ret[QString("setQESCPOSCharacterSize_%1x%2").arg(x).arg(y)] = setCharacterSizeCommand(x, y);
 
+    ret["setQESCPOSFontA"] = setFontCommand(FONT_A);
+    ret["setQESCPOSFontB"] = setFontCommand(FONT_B);
+
     DEFINE_SINGLE_BOOL_PARAM_STRING(Emphasized);
     DEFINE_SINGLE_BOOL_PARAM_STRING(Smoothing);
 

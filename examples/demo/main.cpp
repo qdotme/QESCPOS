@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     printer.setSmoothing();
     printer.write("QESCPOS System\n");
     printer.setCharacterSize(1, 1);
-
+/*
     for (int i=1; i<=8; i++) {
         printer.demoCharPage();
         printer.demoCharPage(32, 16);
@@ -32,6 +32,10 @@ int main(int argc, char *argv[])
         printer.setCharacterCodeTable((QESCPOS::CCT)i);
     }
     printer.cutPaper(true, 0);
+*/
+
+    QImage img(":/Blattaria-logo.png");
+    printer.printRaster(img, 1, 1);
 
     return a.exec();
 }

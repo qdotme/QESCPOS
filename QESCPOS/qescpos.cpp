@@ -29,7 +29,7 @@ void QESCPOS::setInitial() {
 
 
 void QESCPOS::write(const QByteArray &data) {
-    qDebug() << data.toHex();
+    qDebug() << data.length() << data.toHex();
     QextSerialPort::write(data);
 }
 
@@ -155,9 +155,17 @@ void QESCPOS::on_this_characterSizeChanged() {
 
 QByteArray QESCPOS::printRasterCommand(QImage i, int scaleX, int scaleY) {
     QImage i_mono = i.convertToFormat(QImage::Format_Mono);
-    QByteArray ret = QByteArray(GS"V\x00").append((char)0);
-    ret = ret.append((unsigned short)htons(i.width())).append((unsigned short)htons(i.height()));
-    ret = ret.append((const char*) i_mono.bits());
+    QByteArray ret = QByteArray(GS"v0").append((char)0);
+
+    qDebug() << "Image Width:"  << i.width()  << htons(i.width());  // 013E or 3E01
+    qDebug() << "Image Height:" << i.height() << htons(i.height());
+
+    uint16_t w = i.width() / 8; // Portability warning - convert to BE
+    uint16_t h = i.height();
+
+    ret = ret.append((char*)&w, 2).append((char*)&h, 2);
+
+    ret = ret.append((const char*) i_mono.bits(), i.width() * i.height() / 8);
 
     return ret;
 }

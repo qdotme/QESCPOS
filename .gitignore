@@ -1,0 +1,9 @@
+Makefile
+*.so*
+*.o
+*.user
+moc_*.cpp
+qrc_*.cpp
+*.autosave*
+examples/demo/demo
+*.xcf

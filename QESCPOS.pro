@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     QESCPOS \
-    examples/demo
+    examples/demo \
+    examples/demoNV

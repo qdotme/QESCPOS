@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>Blattaria-logo.png</file>
+        <file>Blattaria-logo-lowres.png</file>
     </qresource>
 </RCC>

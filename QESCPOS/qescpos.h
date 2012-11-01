@@ -136,6 +136,7 @@ public:
 
     DECLARE_STATIC_SINGLESTATE(justification,             Justification,             Just,  JUST_CENTER      )
 
+    DECLARE_STATIC(initalize, )
 
     DECLARE_STATIC(setShadingColor,    Color color = C_COLOR2, bool shadow = true)
 
@@ -145,7 +146,10 @@ public:
     int characterHeight() const; void setCharacterHeight(int n);
     
     
-    DECLARE_STATIC(printRaster,        QImage i, int scaleX = 0, int scaleY = 1)
+    DECLARE_STATIC(printRaster,        QImage i,        int scaleX = 1, int scaleY = 1)
+    DECLARE_STATIC(printNVRaster,      int n,           int scaleX = 1, int scaleY = 1)
+
+    DECLARE_STATIC(defineNVRaster,     QList<QImage> l)
     
     void write(const QByteArray &data);
 
@@ -160,12 +164,13 @@ signals:
 
 private:
     void setInitial();
+    static QByteArray _spitNVRasterData(QImage i);
 
-    int m_characterWidth;
-    int m_characterHeight;
+
+    int  m_characterWidth;
+    int  m_characterHeight;
 
     bool m_characterSizeChanged;
-
 };
 
 #endif // QESCPOS_H

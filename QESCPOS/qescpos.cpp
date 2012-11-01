@@ -9,6 +9,7 @@
 
 #define GS  "\x1d"
 #define ESC "\x1b"
+#define FS  "\x1c"
 
 QESCPOS::QESCPOS() : QextSerialPort()
 {
@@ -117,6 +118,15 @@ DEFINE_SINGLE_PARAM(backgroundColor, BackgroundColor, QESCPOS::Color,     \
 DEFINE_SINGLE_PARAM(justification, Justification, QESCPOS::Just, \
     return QByteArray(ESC"a").append((unsigned char)justification); )
 
+
+QByteArray QESCPOS::initalizeCommand() {
+    return QByteArray(ESC"\x40");
+}
+
+void QESCPOS::initalize() {
+    write(initalizeCommand());
+}
+
 // *** CHARACTER SIZE ***//
 QByteArray QESCPOS::setCharacterSizeCommand(int width, int height) {
     unsigned char n = ((width-1) << 4) + (height-1);
@@ -153,9 +163,18 @@ void QESCPOS::on_this_characterSizeChanged() {
     }
 }
 
+QByteArray QESCPOS::printNVRasterCommand(int n, int scaleX, int scaleY) {
+    QByteArray ret = QByteArray(FS"p").append((char)n).append((char)0);
+    return ret;
+}
+
+void QESCPOS::printNVRaster(int n, int scaleX, int scaleY) {
+    write(printNVRasterCommand(n, scaleX, scaleY));
+}
+
 QByteArray QESCPOS::printRasterCommand(QImage i, int scaleX, int scaleY) {
     QImage i_mono = i.convertToFormat(QImage::Format_Mono);
-    QByteArray ret = QByteArray(GS"v0").append((char)0);
+    QByteArray ret = QByteArray(GS"v0").append((char)0); //! @todo scaleXY
 
     qDebug() << "Image Width:"  << i.width()  << htons(i.width());  // 013E or 3E01
     qDebug() << "Image Height:" << i.height() << htons(i.height());
@@ -164,14 +183,61 @@ QByteArray QESCPOS::printRasterCommand(QImage i, int scaleX, int scaleY) {
     uint16_t h = i.height();
 
     ret = ret.append((char*)&w, 2).append((char*)&h, 2);
+/*
+    for (int y=0; y<i.height(); y++)
+        for (int x=0; x<i.width(); x+=8) {
+            char c=0, o=128, idx=0;
+            while (idx<8) {
+                c |= o*(i.pixel(x+idx, y))
+                idx++;
+            }
 
-    ret = ret.append((const char*) i_mono.bits(), i.width() * i.height() / 8);
+            for (int cx = x; (cx<i.width())
+        }
+*/
+    for (int y=0; y<i.height(); y++)
+        ret = ret.append((const char*) i_mono.scanLine(y), i.width() / 8);
+
+//    ret = ret.append((const char*) i_mono.bits(), i.width() * i.height() / 8);
 
     return ret;
 }
 
 void QESCPOS::printRaster(QImage i, int scaleX, int scaleY) {
     write(printRasterCommand(i, scaleX, scaleY));
+}
+
+QByteArray QESCPOS::_spitNVRasterData(QImage i_orig) {
+    QTransform t;
+    t.rotate(-90);
+    t.scale(-1, 1);
+    QImage i = i_orig.transformed(t).convertToFormat(QImage::Format_Mono);
+    QByteArray ret;
+
+    qDebug() << "Image Width:"  << i.width()  << htons(i.width());  // 013E or 3E01
+    qDebug() << "Image Height:" << i.height() << htons(i.height());
+
+    uint16_t h = i.width() / 8; // Portability warning - convert to BE
+    uint16_t w = i.height() / 8;
+
+    ret = ret.append((char*)&w, 2).append((char*)&h, 2);
+
+    for (int y=0; y<w * 8; y++)
+        ret = ret.append((const char*) i.scanLine(y), i.width() / 8);
+
+    return ret;
+}
+
+QByteArray QESCPOS::defineNVRasterCommand(QList<QImage> l) {
+    QByteArray ret = QByteArray(FS"q").append((char)l.count());
+    Q_FOREACH(QImage i, l)
+        ret.append(_spitNVRasterData(i));
+
+    return ret;
+}
+
+void QESCPOS::defineNVRaster(QList<QImage> l) {
+    write(defineNVRasterCommand(l));
 }
 
 /*

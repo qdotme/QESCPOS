@@ -7,15 +7,18 @@
 
 #include <QBitmap>
 
-#define DECLARE_STATIC(name, ...)                             \
-    static QByteArray name##Command(__VA_ARGS__);             \
-    void name(__VA_ARGS__);
 
-#define DECLARE_STATIC_SINGLESTATE(name, Name, type, def)     \
+#define DECLARE_STATIC(type, name, ...)                              \
+    static QByteArray name##Command(__VA_ARGS__);                    \
+    type name(__VA_ARGS__);
+
+#define DECLARE_STATIC_VOID(name, ...) DECLARE_STATIC(void, name, __VA_ARGS__)
+
+#define DECLARE_STATIC_VOID_SINGLESTATE(name, Name, type, def)     \
     private:                                                  \
     type m_##name;                                            \
     public:                                                   \
-    DECLARE_STATIC(set##Name, type name = def)                \
+    DECLARE_STATIC_VOID(set##Name, type name = def)                \
     type name() const;                                        \
 
 
@@ -117,45 +120,53 @@ public:
     void setType(Type t);
 
     // ** ACTIVES ** //
-    DECLARE_STATIC(cutPaper,        bool full=false, int pos=-1)
+    DECLARE_STATIC_VOID(cutPaper,        bool full=false, int pos=-1)
 
     // ** STATE CHANGERS ** //
-    DECLARE_STATIC_SINGLESTATE(underline,                 Underline,                 int,      1             )
-    DECLARE_STATIC_SINGLESTATE(emphasized,                Emphasized,                bool,     true          )
-    DECLARE_STATIC_SINGLESTATE(doubleStrike,              DoubleStrike,              bool,     true          )
-    DECLARE_STATIC_SINGLESTATE(upsideDown,                UpsideDown,                bool,     true          )
-    DECLARE_STATIC_SINGLESTATE(reverse,                   Reverse,                   bool,     true          )
-    DECLARE_STATIC_SINGLESTATE(smoothing,                 Smoothing,                 bool,     true          )
+    DECLARE_STATIC_VOID_SINGLESTATE(underline,                 Underline,                 int,      1             )
+    DECLARE_STATIC_VOID_SINGLESTATE(emphasized,                Emphasized,                bool,     true          )
+    DECLARE_STATIC_VOID_SINGLESTATE(doubleStrike,              DoubleStrike,              bool,     true          )
+    DECLARE_STATIC_VOID_SINGLESTATE(upsideDown,                UpsideDown,                bool,     true          )
+    DECLARE_STATIC_VOID_SINGLESTATE(reverse,                   Reverse,                   bool,     true          )
+    DECLARE_STATIC_VOID_SINGLESTATE(smoothing,                 Smoothing,                 bool,     true          )
 
-    DECLARE_STATIC_SINGLESTATE(internationalCharacterSet, InternationalCharacterSet, ICS,      ICS_UK        )
-    DECLARE_STATIC_SINGLESTATE(characterCodeTable,        CharacterCodeTable,        CCT,      CCT_PC437     )
-    DECLARE_STATIC_SINGLESTATE(characterColor,            CharacterColor,            Color,    C_COLOR2      )
-    DECLARE_STATIC_SINGLESTATE(backgroundColor,           BackgroundColor,           Color,    C_COLOR2      )
-    DECLARE_STATIC_SINGLESTATE(clockwiseRotation,         ClockwiseRotation,         Rotation, ROTATE_SPACE1 )
-    DECLARE_STATIC_SINGLESTATE(font,                      Font,                      Font,     FONT_B        )
+    DECLARE_STATIC_VOID_SINGLESTATE(internationalCharacterSet, InternationalCharacterSet, ICS,      ICS_UK        )
+    DECLARE_STATIC_VOID_SINGLESTATE(characterCodeTable,        CharacterCodeTable,        CCT,      CCT_PC437     )
+    DECLARE_STATIC_VOID_SINGLESTATE(characterColor,            CharacterColor,            Color,    C_COLOR2      )
+    DECLARE_STATIC_VOID_SINGLESTATE(backgroundColor,           BackgroundColor,           Color,    C_COLOR2      )
+    DECLARE_STATIC_VOID_SINGLESTATE(clockwiseRotation,         ClockwiseRotation,         Rotation, ROTATE_SPACE1 )
+    DECLARE_STATIC_VOID_SINGLESTATE(font,                      Font,                      Font,     FONT_B        )
 
-    DECLARE_STATIC_SINGLESTATE(justification,             Justification,             Just,  JUST_CENTER      )
+    DECLARE_STATIC_VOID_SINGLESTATE(justification,             Justification,             Just,  JUST_CENTER      )
 
-    DECLARE_STATIC(initalize, )
+    DECLARE_STATIC_VOID(initialize, )
 
-    DECLARE_STATIC(setShadingColor,    Color color = C_COLOR2, bool shadow = true)
+    DECLARE_STATIC_VOID(setShadingColor,    Color color = C_COLOR2, bool shadow = true)
 
-    DECLARE_STATIC(setCharacterSize,   int width = 2, int height = 2)
+    DECLARE_STATIC_VOID(setCharacterSize,   int width = 2, int height = 2)
 
     int characterWidth () const; void setCharacterWidth (int n);
     int characterHeight() const; void setCharacterHeight(int n);
     
     
-    DECLARE_STATIC(printRaster,        QImage i,        int scaleX = 1, int scaleY = 1)
-    DECLARE_STATIC(printNVRaster,      int n,           int scaleX = 1, int scaleY = 1)
+    DECLARE_STATIC_VOID(printRaster,        QImage i,        int scaleX = 1, int scaleY = 1)
+    DECLARE_STATIC_VOID(printNVRaster,      int n,           int scaleX = 1, int scaleY = 1)
 
-    DECLARE_STATIC(defineNVRaster,     QList<QImage> l)
+    DECLARE_STATIC_VOID(defineNVRaster,     QList<QImage> l)
     
     void write(const QByteArray &data);
 
     void demoCharPage(int charactersPerLine = 32, int base = 10);
 
+    DECLARE_STATIC(unsigned char, modelId, )
+    DECLARE_STATIC(unsigned char, typeId, )
+    DECLARE_STATIC(unsigned char, versionId, )
+
+    // int printerModelId
+
+//    QMap<QString, QByteArray> getStaticCommandMap();
     QMap<QString, QByteArray> getCommandMap();
+    void autoConfig();
 public slots:
     void on_this_characterSizeChanged();
 

@@ -1,17 +1,21 @@
 #include <QCoreApplication>
 
 #include <qescpos.h>
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     
     QESCPOS printer("/dev/ttyUSB0");
+    printer.open(QIODevice::ReadWrite);
+
+    /*
     printer.setBaudRate(BAUD19200);
     printer.setFlowControl(FLOW_HARDWARE);
     printer.setParity(PAR_NONE);
-    printer.open(QIODevice::ReadWrite);
-
+    */
+    printer.autoConfig();
     /*
     printer.write("Foo\n\n\n\nBar\n");
     printer.setUnderline(2);
@@ -38,7 +42,8 @@ int main(int argc, char *argv[])
 
 */
 #if 0
-    QImage img(":/Blattaria-logo.png");
+#if 1
+    QImage img("/home/qdot/Downloads/logo3.png");
     printer.printRaster(img, 1, 1);
 #else
     printer.printNVRaster(1);
@@ -46,6 +51,9 @@ int main(int argc, char *argv[])
     printer.printNVRaster(1);
     printer.printNVRaster(1);
     printer.printNVRaster(1);
+#endif
+#else
+    qDebug() << printer.modelId() << printer.typeId() << printer.versionId();
 #endif
     printer.cutPaper(true, 0);
     return a.exec();

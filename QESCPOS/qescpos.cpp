@@ -1,15 +1,14 @@
 #include "qescpos.h"
 #include <QDebug>
+#include <QColor>
 
 #include <arpa/inet.h>
+
+#include "qescpos_private.h"
 
 // Here be hungry dragons,
 //#include <boost/preprocessor/list.hpp>
 //#include <boost/preprocessor/seq.hpp>
-
-#define GS  "\x1d"
-#define ESC "\x1b"
-#define FS  "\x1c"
 
 QESCPOS::QESCPOS() : QextSerialPort()
 {
@@ -58,73 +57,57 @@ QByteArray QESCPOS::cutPaperCommand(bool full, int pos) {
 }
 void QESCPOS::cutPaper(bool full, int pos) { write(cutPaperCommand(full, pos)); }
 
-#define DEFINE_SINGLE_PARAM(name, Name, type, body)           \
-    QByteArray QESCPOS::set##Name##Command (type name) {      \
-        body                                                  \
-    }                                                         \
-                                                              \
-    void QESCPOS::set##Name (type name) {                     \
-        if (m_##name == name) return;                         \
-        m_##name = name;                                      \
-        write(set##Name##Command(name));                      \
-    }                                                         \
-                                                              \
-    type QESCPOS::name () const { return m_##name; }
 
-#define DEFINE_SINGLE_BOOL_PARAM_STRING(Name)      \
-    ret["setQESCPOS"#Name]   = set##Name##Command(true);  \
-    ret["resetQESCPOS"#Name] = set##Name##Command(false);
-
-DEFINE_SINGLE_PARAM(underline,    Underline,    int,                         \
+DEFINE_SINGLE_PARAM(void, underline,    Underline,    int,                         \
     return QByteArray(ESC"-").append((unsigned char)underline); )
 
-DEFINE_SINGLE_PARAM(emphasized,   Emphasized,   bool,                        \
+DEFINE_SINGLE_PARAM(void, emphasized,   Emphasized,   bool,                        \
     return QByteArray(ESC"E").append((unsigned char)emphasized); )
 
-DEFINE_SINGLE_PARAM(doubleStrike, DoubleStrike, bool,                        \
+DEFINE_SINGLE_PARAM(void, doubleStrike, DoubleStrike, bool,                        \
     return QByteArray(ESC"G").append((unsigned char)doubleStrike); )
 
-DEFINE_SINGLE_PARAM(upsideDown,   UpsideDown,   bool,                        \
+DEFINE_SINGLE_PARAM(void, upsideDown,   UpsideDown,   bool,                        \
     return QByteArray(ESC"{").append((unsigned char)upsideDown); )
 
-DEFINE_SINGLE_PARAM(reverse,      Reverse,      bool,                        \
+DEFINE_SINGLE_PARAM(void, reverse,      Reverse,      bool,                        \
     return QByteArray(GS"B").append((unsigned char)reverse); )
 
-DEFINE_SINGLE_PARAM(smoothing,    Smoothing,    bool,                        \
+DEFINE_SINGLE_PARAM(void, smoothing,    Smoothing,    bool,                        \
     return QByteArray(GS"b").append((unsigned char)smoothing); )
 
-DEFINE_SINGLE_PARAM(font,         Font,         QESCPOS::Font,               \
+DEFINE_SINGLE_PARAM(void, font,         Font,         QESCPOS::Font,               \
     return QByteArray(ESC"M").append((unsigned char)font); )
 
-DEFINE_SINGLE_PARAM(internationalCharacterSet, InternationalCharacterSet, QESCPOS::ICS, \
+DEFINE_SINGLE_PARAM(void, internationalCharacterSet, InternationalCharacterSet, QESCPOS::ICS, \
     return QByteArray(ESC"R").append((unsigned char)internationalCharacterSet); )
 
 // ESC r - print color - not featured on TM88-IV.
 
-DEFINE_SINGLE_PARAM(characterCodeTable, CharacterCodeTable, QESCPOS::CCT, \
+DEFINE_SINGLE_PARAM(void, characterCodeTable, CharacterCodeTable, QESCPOS::CCT, \
     return QByteArray(ESC"t").append((unsigned char)characterCodeTable); )
 
-DEFINE_SINGLE_PARAM(clockwiseRotation, ClockwiseRotation, QESCPOS::Rotation, \
+DEFINE_SINGLE_PARAM(void, clockwiseRotation, ClockwiseRotation, QESCPOS::Rotation, \
     return QByteArray(ESC"V").append((unsigned char)clockwiseRotation); )
 
-DEFINE_SINGLE_PARAM(characterColor, CharacterColor, QESCPOS::Color,       \
+DEFINE_SINGLE_PARAM(void, characterColor, CharacterColor, QESCPOS::Color,       \
     return QByteArray(GS"(N\x02\x00\x30").append((unsigned char)characterColor); )
 
-DEFINE_SINGLE_PARAM(backgroundColor, BackgroundColor, QESCPOS::Color,     \
+DEFINE_SINGLE_PARAM(void, backgroundColor, BackgroundColor, QESCPOS::Color,     \
     return QByteArray(GS"(N\x02\x00\x31").append((unsigned char)backgroundColor); )
 
 // GS ( N 03 00 32 shading color.
 
-DEFINE_SINGLE_PARAM(justification, Justification, QESCPOS::Just, \
+DEFINE_SINGLE_PARAM(void, justification, Justification, QESCPOS::Just, \
     return QByteArray(ESC"a").append((unsigned char)justification); )
 
 
-QByteArray QESCPOS::initalizeCommand() {
+QByteArray QESCPOS::initializeCommand() {
     return QByteArray(ESC"\x40");
 }
 
-void QESCPOS::initalize() {
-    write(initalizeCommand());
+void QESCPOS::initialize() {
+    write(initializeCommand());
 }
 
 // *** CHARACTER SIZE ***//
@@ -174,6 +157,18 @@ void QESCPOS::printNVRaster(int n, int scaleX, int scaleY) {
 
 QByteArray QESCPOS::printRasterCommand(QImage i, int scaleX, int scaleY) {
     QImage i_mono = i.convertToFormat(QImage::Format_Mono);
+    if (i.hasAlphaChannel()) {
+        qDebug() << "Printing with alpha";
+        for (int x = 0; x<i.width(); x++)
+            for (int y = 0; y<i.height(); y++)
+                i_mono.setPixel(x, y, (255-qAlpha(i.pixel(x, y)))*(255-qGray(i.pixel(x, y))) < 128*255);
+    }
+    else
+        for (int x = 0; x<i.width(); x++)
+            for (int y = 0; y<i.height(); y++)
+                i_mono.setPixel(x, y, qGray(i.pixel(x, y)) < 128);
+
+
     QByteArray ret = QByteArray(GS"v0").append((char)0); //! @todo scaleXY
 
     qDebug() << "Image Width:"  << i.width()  << htons(i.width());  // 013E or 3E01
@@ -199,7 +194,6 @@ QByteArray QESCPOS::printRasterCommand(QImage i, int scaleX, int scaleY) {
         ret = ret.append((const char*) i_mono.scanLine(y), i.width() / 8);
 
 //    ret = ret.append((const char*) i_mono.bits(), i.width() * i.height() / 8);
-
     return ret;
 }
 
@@ -211,7 +205,19 @@ QByteArray QESCPOS::_spitNVRasterData(QImage i_orig) {
     QTransform t;
     t.rotate(-90);
     t.scale(-1, 1);
-    QImage i = i_orig.transformed(t).convertToFormat(QImage::Format_Mono);
+    QImage i = i_orig.transformed(t).convertToFormat(QImage::Format_Mono); // , Qt::MonoOnly | Qt::ThresholdDither | Qt::ThresholdAlphaDither);
+
+
+    if (i_orig.hasAlphaChannel())
+        for (int x = 0; x<i.width(); x++)
+            for (int y = 0; y<i.height(); y++)
+                i.setPixel(x, y, (255-qAlpha(i_orig.pixel(y, x)))*(255-qGray(i_orig.pixel(y, x))) < 128*255);
+    else
+        for (int x = 0; x<i.width(); x++)
+            for (int y = 0; y<i.height(); y++)
+                i.setPixel(x, y, qGray(i_orig.pixel(y, x)) < 128);
+
+
     QByteArray ret;
 
     qDebug() << "Image Width:"  << i.width()  << htons(i.width());  // 013E or 3E01
@@ -240,54 +246,65 @@ void QESCPOS::defineNVRaster(QList<QImage> l) {
     write(defineNVRasterCommand(l));
 }
 
-/*
-class Base {
-public:
-    QMap<QString, QString> getMap() {
-        return QMap<QString, QString>();
+
+DEFINE_BYTE_READBACK(modelId, \
+    return QByteArray(GS"I").append((char)1); )
+DEFINE_BYTE_READBACK(typeId, \
+    return QByteArray(GS"I").append((char)2); )
+DEFINE_BYTE_READBACK(versionId, \
+    return QByteArray(GS"I").append((char)3); )
+
+
+void QESCPOS::autoConfig() {
+    QList<BaudRateType> l_baudrates;
+    l_baudrates << BAUD19200 << BAUD38400 << BAUD9600 << BAUD4800 << BAUD2400;
+
+    setParity(PAR_NONE);
+    setFlowControl(FLOW_HARDWARE);
+
+    BaudRateType rate;
+    Q_FOREACH(rate, l_baudrates) {
+        setBaudRate(rate);
+        initialize();
+        if (modelId()==32)
+            break;
     }
-};
 
+    initialize();
 
-template<typename B, class X, class Y>
-class Child : public B {
-    QMap<QString, QString> getMap() {
-        QMap<QString, QString> ret = B::getMap();
-        ret[X::name] = Y::name;
-        return ret;
-    }
-};
+    //write("QESCPOS Sequence");
+    cutPaper(true, 0);
 
-QMap<QString, QString> ret;
+    if (rate == BAUD19200)
+        write("AutoConfig: BAUD19200\n");
+    if (rate == BAUD38400)
+        write("AutoConfig: BAUD38400\n");
+    if (rate == BAUD9600)
+        write("AutoConfig: BAUD9600\n");
+    if (rate == BAUD4800)
+        write("AutoConfig: BAUD4800\n");
+    if (rate == BAUD2400)
+        write("AutoConfig: BAUD2400\n");
 
-ret["A"] = B;
+    write("AutoConfig: Assume: PAR_NONE\n");
+    write("AutoConfig: Assume: FLOW_HARDWARE\n");
 
-*/
-/*
-class A {
-public:
-    static const char * name;
-};
-const char * A::name = "Foo";
+    cutPaper(true, 0);
+}
 
-class B {
-public:
-    static const char * name;
-};
-const char * B::name = "Foo";
-
-typedef Base Acc;
-
-typedef Child<Acc, A, B> Acc;
-
-*/
+/* *** Command Maps and API adapters *** */
 
 QMap<QString, QByteArray> QESCPOS::getCommandMap() {
     QMap<QString, QByteArray> ret;
 
-    for(int x = 1; x < 8; x++)
-        for(int y = 1; y < 8; y++)
+    for(int x = 1; x <= 8; x++)
+        for(int y = 1; y <= 8; y++)
             ret[QString("setQESCPOSCharacterSize_%1x%2").arg(x).arg(y)] = setCharacterSizeCommand(x, y);
+
+    for (int i=1; i<=255; i++)
+        for(int x = 1; x <= 2; x++)
+            for(int y = 1; y <= 2; y++)
+                ret[QString("printNVRaster_%1_%2x%3").arg(i).arg(x).arg(y)] = printNVRasterCommand(i, x, y);
 
     ret["setQESCPOSFontA"] = setFontCommand(FONT_A);
     ret["setQESCPOSFontB"] = setFontCommand(FONT_B);

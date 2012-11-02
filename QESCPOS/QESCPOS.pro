@@ -17,7 +17,8 @@ unix:DEFINES += _TTY_POSIX_
 SOURCES += qescpos.cpp
 
 HEADERS += qescpos.h\
-        QESCPOS_global.h
+        QESCPOS_global.h \
+    qescpos_private.h
 
 unix:!symbian {
     maemo5 {
@@ -31,6 +32,8 @@ unix:!symbian {
 unix:LIBS += -lqextserialport
 
 
-header_files.files = $$HEADERS
+header_files.files = qescpos.h \
+                     QESCPOS_global.h
+
 unix:header_files.path = /usr/include/QESCPOS
 INSTALLS += header_files

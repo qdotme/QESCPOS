@@ -12,11 +12,11 @@ int main(int argc, char *argv[])
     printer.setParity(PAR_NONE);
     printer.open(QIODevice::ReadWrite);
     
-    printer.initalize();
+    printer.initialize();
     printer.cutPaper(true, 0);
 
     QList<QImage> l;
-    l.append(QImage("http://sample.sy2.com/site/sample.sy2.com/images/logo.png"));
+    l.append(QImage("/home/qdot/Downloads/logo.png"));
     printer.defineNVRaster(l);
 
     printer.write("Operation complete\n");

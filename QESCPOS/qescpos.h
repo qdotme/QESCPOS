@@ -162,6 +162,8 @@ public:
     DECLARE_STATIC(unsigned char, typeId, )
     DECLARE_STATIC(unsigned char, versionId, )
 
+    DECLARE_STATIC_VOID(generatePulse, int m, int t1, int t2)
+
     // int printerModelId
 
 //    QMap<QString, QByteArray> getStaticCommandMap();

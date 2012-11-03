@@ -101,6 +101,13 @@ DEFINE_SINGLE_PARAM(void, backgroundColor, BackgroundColor, QESCPOS::Color,     
 DEFINE_SINGLE_PARAM(void, justification, Justification, QESCPOS::Just, \
     return QByteArray(ESC"a").append((unsigned char)justification); )
 
+QByteArray QESCPOS::generatePulseCommand(int m, int t1, int t2) {
+    return QByteArray(ESC"p").append((unsigned char)m).append((unsigned char)(t1/2)).append((unsigned char)(t2/2));
+}
+
+void QESCPOS::generatePulse(int m, int t1, int t2) {
+    write(generatePulseCommand(m, t1, t2));
+}
 
 QByteArray QESCPOS::initializeCommand() {
     return QByteArray(ESC"\x40");

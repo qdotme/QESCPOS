@@ -28,9 +28,9 @@ void QESCPOS::setInitial() {
 }
 
 
-void QESCPOS::write(const QByteArray &data) {
+qint64 QESCPOS::write(const QByteArray &data) {
     qDebug() << data.length() << data.toHex();
-    QextSerialPort::write(data);
+    return QextSerialPort::write(data);
 }
 
 void QESCPOS::demoCharPage(int cpl, int base)

@@ -18,7 +18,7 @@
     private:                                                  \
     type m_##name;                                            \
     public:                                                   \
-    DECLARE_STATIC_VOID(set##Name, type name = def)                \
+    DECLARE_STATIC_VOID(set##Name, type name = def)           \
     type name() const;                                        \
 
 
@@ -154,7 +154,7 @@ public:
 
     DECLARE_STATIC_VOID(defineNVRaster,     QList<QImage> l)
     
-    void write(const QByteArray &data);
+    Q_INVOKABLE qint64 write(const QByteArray &data);
 
     void demoCharPage(int charactersPerLine = 32, int base = 10);
 
@@ -168,7 +168,7 @@ public:
 
 //    QMap<QString, QByteArray> getStaticCommandMap();
     QMap<QString, QByteArray> getCommandMap();
-    void autoConfig();
+    void autoConfig();    
 public slots:
     void on_this_characterSizeChanged();
 

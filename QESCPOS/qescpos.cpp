@@ -316,8 +316,18 @@ QMap<QString, QByteArray> QESCPOS::getCommandMap() {
     ret["setQESCPOSFontA"] = setFontCommand(FONT_A);
     ret["setQESCPOSFontB"] = setFontCommand(FONT_B);
 
+    for (int i=0; i<=255; i++) {
+        ret[QString("cutPaper_partial_%1").arg(i)] = cutPaperCommand(true, i);
+        ret[QString("cutPaper_full_%1").arg(i)] = cutPaperCommand(false, i);
+    }
+
+    ret["cutPaper_partial"] = cutPaperCommand(true);
+    ret["cutPaper_full"] = cutPaperCommand(false);
+
     DEFINE_SINGLE_BOOL_PARAM_STRING(Emphasized);
     DEFINE_SINGLE_BOOL_PARAM_STRING(Smoothing);
+
+
 
     ret["newLine"] = "\n";
 

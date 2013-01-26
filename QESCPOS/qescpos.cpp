@@ -319,6 +319,7 @@ QMap<QString, QByteArray> QESCPOS::getCommandMap() {
     DEFINE_SINGLE_BOOL_PARAM_STRING(Emphasized);
     DEFINE_SINGLE_BOOL_PARAM_STRING(Smoothing);
 
+    ret["newLine"] = "\n";
 
     return ret;
 }
